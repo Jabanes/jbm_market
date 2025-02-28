@@ -1,40 +1,32 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import App from './App'; // Main App Component
-import Home from './Home'; // Home Component
-import Login from './Login'; // Login Component
-import Register from './Register'; // Register Component
-import UserOptions from './UserOptions'; // UserOptions Component
+import 'bootstrap/dist/css/bootstrap.min.css';
+import App from './App';
+import Home from './Home';
+import Login from './Login';
+import Register from './Register';
+import UserOptions from './UserOptions';
 
-// Create a root element to render your app
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 
 root.render(
-  <React.StrictMode>
-    <Router>
-      <Routes>
-        {/* Default route */}
-        <Route path="/" element={<Home />} />
-
-        {/* Main app route with nested routes */}
-        <Route path="/app" element={<App />}>
-          {/* Nested routes for login, register, and user options */}
-          <Route path="login" element={<Login />} />
-          <Route path="register" element={<Register />} />
-          <Route path="user-options" element={<UserOptions />} />
-        </Route>
-
-        {/* Fallback route for undefined paths */}
+  <Router>
+    <Routes>
+      <Route path="/" element={<App />}>
+        <Route index element={<Home />} />
+        <Route path="login" element={<Login/>} />
+        <Route path="register" element={<Register />} />
+        <Route path="user-options" element={<UserOptions />} />
         <Route
           path="*"
           element={
-            <main style={{ padding: '1rem' }}>
-              <p>There's nothing here!</p>
+            <main className="container text-center mt-5">
+              <h2>404 - Page Not Found</h2>
             </main>
           }
         />
-      </Routes>
-    </Router>
-  </React.StrictMode>
+      </Route>
+    </Routes>
+  </Router>
 );

@@ -1,17 +1,15 @@
-import React from 'react';
-import { Link, Outlet } from 'react-router-dom'; // Import Outlet to render nested routes
+import React from "react";
+import { Outlet } from "react-router-dom";
+import Navbar from "./Navbar"; // Import the Navbar component
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const App: React.FC = () => {
   return (
     <div>
-      <nav>
-        <Link to="/app/login">Login</Link> | 
-        <Link to="/app/register">Register</Link> | 
-        <Link to="/app/user-options">User Options</Link>
-      </nav>
-
-      {/* The Outlet component renders the matched nested route */}
-      <Outlet />
+      <Navbar /> {/* Render Navbar at the top */}
+      <div className="container mt-4">
+        <Outlet /> {/* Render child routes here */}
+      </div>
     </div>
   );
 };

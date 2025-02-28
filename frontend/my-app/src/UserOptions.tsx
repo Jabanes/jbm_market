@@ -1,21 +1,11 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-
+import { Link } from 'react-router-dom';
+import isLoggedIn from './Login';
 const UserOptions: React.FC = () => {
-  const navigate = useNavigate();
-
-  // Handle user logout
-  const handleLogout = () => {
-    localStorage.removeItem('authToken'); // Remove the token from localStorage
-    navigate('/login'); // Redirect to login page after logout
-  };
-
   return (
-    <div>
-      <h1>Welcome to Your Dashboard</h1>
-      <button onClick={() => navigate('/my-cart')}>My Cart</button>
-      <button onClick={() => navigate('/my-orders')}>My Orders</button>
-      <button onClick={handleLogout}>Logout</button>
+    <div className="container text-center mt-5">
+      {/* <h2>Welcome Back, {firstname}</h2> */}
+      
     </div>
   );
 };

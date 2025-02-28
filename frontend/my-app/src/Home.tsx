@@ -7,14 +7,7 @@ const Home: React.FC = () => {
       <h1>Welcome to the Home Page</h1>
       <p>This is the default page shown on the app.</p>
 
-      <div>
-        <Link to="/login">
-          <button>Login</button>
-        </Link>
-        <Link to="/register">
-          <button>Register</button>
-        </Link>
-      </div>
+    
     </div>
   );
 };
