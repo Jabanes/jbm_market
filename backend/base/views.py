@@ -13,19 +13,23 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        token['username'] = user.username  # Add custom user data
+        token['username'] = user.username
+        token['first name'] = user.first_name
+        token['last name'] = user.last_name
+        token['email'] = user.email  # Add custom user data
         return token
 
 # Product ViewSet
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
 # User ViewSet
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
 # Register (SignUp) View
 @api_view(['POST'])
@@ -57,7 +61,7 @@ def user_order_list(request, user_id):
         return Response({"error": "You do not have permission to access this user's orders"}, status=403)
 
     with connection.cursor() as cursor:
-        cursor.callproc('GetUserOrders', [user_id])  # Call the stored procedure
+        cursor.callproc('GetOrdersByUserId', [user_id])  # Call the stored procedure
         columns = [col[0] for col in cursor.description]  # Get column names
         orders = [dict(zip(columns, row)) for row in cursor.fetchall()]  # Convert results to a list of dictionaries
 

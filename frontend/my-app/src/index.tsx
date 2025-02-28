@@ -7,6 +7,7 @@ import Home from './Home';
 import Login from './Login';
 import Register from './Register';
 import UserOptions from './UserOptions';
+import UserOrders from './UserOrders';
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 
@@ -18,6 +19,7 @@ root.render(
         <Route path="login" element={<Login/>} />
         <Route path="register" element={<Register />} />
         <Route path="user-options" element={<UserOptions />} />
+        <Route path="user-orders" element={<UserOrders />} />
         <Route
           path="*"
           element={

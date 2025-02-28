@@ -36,11 +36,11 @@ const Navbar: React.FC = () => {
                         {isLoggedIn ? (
                             <>
                                 <li className="nav-item">
-                                    <Link className="nav-link" to="/orders">My Orders</Link>
+                                    <Link className="nav-link" to="/user-orders">My Orders</Link>
 
                                 </li>
                                 <li className="nav-item">
-                                    <Link className="nav-link" to="/cart">Cart</Link>
+                                    <Link className="nav-link" to="/user-options">Cart</Link>
 
                                 </li>
                                 <li className="nav-item">
