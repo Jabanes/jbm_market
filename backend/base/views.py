@@ -75,7 +75,7 @@ def user_order_detail(request, user_id, order_id):
 
     try:
         with connection.cursor() as cursor:
-            cursor.callproc('GetCustomerOrderDetails', [user_id, order_id])
+            cursor.callproc('GetOrderDetails', [user_id, order_id])
             columns = [col[0] for col in cursor.description]  # Fetch column names
             results = [dict(zip(columns, row)) for row in cursor.fetchall()]  # Convert rows to dicts
 
