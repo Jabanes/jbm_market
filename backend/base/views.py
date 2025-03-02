@@ -1,7 +1,7 @@
 from rest_framework import status, viewsets
 from django.db import connection
-from .models import Product, User, Order, OrderItem
-from .serializers import ProductSerializer, UserSerializer, RegisterSerializer, OrderItemSerializer, OrderSerializer
+from .models import User, Order, Category
+from .serializers import ProductSerializer, UserSerializer, RegisterSerializer, CategorySerializer, OrderSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -19,11 +19,38 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['email'] = user.email  # Add custom user data
         return token
 
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
 # Product ViewSet
-class ProductViewSet(viewsets.ModelViewSet):
-    queryset = Product.objects.all()
+class ProductViewSet(viewsets.ReadOnlyModelViewSet):  # ReadOnly since it's a view
     serializer_class = ProductSerializer
     permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT product_id, product_name, price, stock, category_name
+                FROM available_products_view;
+            """)
+            rows = cursor.fetchall()
+
+        # Convert raw query results to a list of dictionaries
+        products = [
+            {
+                "id": row[0],  # product_id from the view
+                "name": row[1],  # product_name from the view
+                "price": row[2],
+                "stock": row[3],
+                "category": row[4]
+            }
+            for row in rows
+        ]
+
+        return products
 
 # User ViewSet
 class UserViewSet(viewsets.ModelViewSet):
@@ -106,3 +133,38 @@ def user_order_detail(request, user_id, order_id):
 
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from django.db import connection
+
+@api_view(['GET'])
+def get_products_by_category(request, category_id):
+    # List to hold the products fetched from the stored procedure
+    products = []
+    
+    # Use the cursor to call the stored procedure and fetch the results
+    with connection.cursor() as cursor:
+        # Call the stored procedure with the category_id
+        cursor.callproc('GetProductsByCategory', [category_id])
+        
+        # Fetch all results from the cursor after calling the stored procedure
+        results = cursor.fetchall()
+        
+        # If no results are found, return an empty list
+        if not results:
+            return Response(products)
+        
+        # Process each row returned by the stored procedure
+        for row in results:
+            product = {
+                'product_id': row[0],  # Assuming these are the columns from the stored procedure's result
+                'product_name': row[1],
+                'price': row[2],
+                'stock': row[3],
+                'category_name': row[4],
+            }
+            products.append(product)
+    
+    # Return the products in the response
+    return Response(products)

@@ -1,48 +1,67 @@
-// src/components/UserOption.tsx
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Product } from './models/Product';  // Import the updated Product model
+import { Link, useParams } from 'react-router-dom';
+import { Product } from './models/Product';
+import { Category } from './models/Category';
 
 const UserOption: React.FC = () => {
-  // State to store products
   const [products, setProducts] = useState<Product[]>([]);
-  
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [first_name, setFirstName] = useState("");
+  const [username, setUsername] = useState("");
+  const { categoryName } = useParams();  // Capture the category from the URL
+
   useEffect(() => {
-    // Get the token from localStorage
     const token = localStorage.getItem('token');
-    
-    // If token exists, fetch the products
     if (token) {
-      axios
-        .get('http://127.0.0.1:8000/products', {
-          headers: {
-            Authorization: `Bearer ${token}`,  // Use the token in Authorization header
-            
-          }
-        })
-        .then(response => {
-          console.log(response.data);
-          
-          
-          setProducts(response.data);  // Set products in state
-        })
-        .catch(error => {
-          console.error('There was an error fetching the products!', error);
-        });
+      const decodedToken = JSON.parse(atob(token.split(".")[1]));
+      setUsername(decodedToken.username);
+      setFirstName(decodedToken.first_name);
+
+      axios.get('http://127.0.0.1:8000/products', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then(response => setProducts(response.data))
+      .catch(error => console.error('Error fetching products:', error));
+
+      axios.get('http://127.0.0.1:8000/categories', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then(response => setCategories(response.data))
+      .catch(error => console.error('Error fetching categories:', error));
     } else {
       console.log('Token not found in localStorage');
     }
-  }, []); // Empty dependency array to run the effect once on mount
+  }, []);
+
+  // Filter products by category
+  const filteredProducts = categoryName
+    ? products.filter(product => product.category === categoryName)
+    : products;
 
   return (
     <div className="container">
-      <h2>User Options</h2>
+      <h2>Welcome back, {first_name || username}</h2>
+
+      {/* Category Links */}
+      <div className="mb-3">
+        <Link to="/user-options" className="btn btn-secondary me-2">All</Link>
+        {categories.map(cat => (
+          <Link
+            key={cat.id}
+            to={`/category/${cat.name}`}  // Pass category name in the URL path
+            className="btn btn-primary me-2"
+          >
+            {cat.name}
+          </Link>
+        ))}
+      </div>
+
       <div className="row">
-        {products.length === 0 ? (
+        {filteredProducts.length === 0 ? (
           <p>No products available</p>
         ) : (
-          products.map(product => (
+          filteredProducts.map(product => (
             <div key={product.id} className="col-md-4">
               <div className="card" style={{ width: '18rem' }}>
                 <img src={product.image} className="card-img-top" alt={product.name} />
@@ -59,6 +78,6 @@ const UserOption: React.FC = () => {
       </div>
     </div>
   );
-}
+};
 
 export default UserOption;

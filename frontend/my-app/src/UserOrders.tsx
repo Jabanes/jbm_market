@@ -20,6 +20,7 @@ interface OrderDetails {
 const UserOrders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<OrderDetails | null>(null);
+  
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -28,6 +29,8 @@ const UserOrders: React.FC = () => {
       try {
         const decodedToken = JSON.parse(atob(token.split(".")[1]));
         const userId = decodedToken.user_id;
+        
+        
 
         axios
           .get(`http://127.0.0.1:8000/orders/${userId}`, {

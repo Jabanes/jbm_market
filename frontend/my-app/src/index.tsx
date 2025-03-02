@@ -20,6 +20,7 @@ root.render(
         <Route path="login" element={<Login/>} />
         <Route path="register" element={<Register />} />
         <Route path="user-options" element={<UserOptions />} />
+        <Route path="category/:categoryName" element={<UserOptions />} />
         <Route path="user-orders" element={<UserOrders />} />
         <Route path="order-details" element={<OrderDetails />} />
         <Route
