@@ -25,8 +25,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
-# Product ViewSet
-class ProductViewSet(viewsets.ReadOnlyModelViewSet):  # ReadOnly since it's a view
+class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ProductSerializer
     permission_classes = [AllowAny]
 
@@ -38,11 +37,10 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):  # ReadOnly since it's a vi
             """)
             rows = cursor.fetchall()
 
-        # Convert raw query results to a list of dictionaries
         products = [
             {
-                "id": row[0],  # product_id from the view
-                "name": row[1],  # product_name from the view
+                "id": row[0],
+                "name": row[1],
                 "price": row[2],
                 "stock": row[3],
                 "category": row[4]
@@ -51,6 +49,28 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):  # ReadOnly since it's a vi
         ]
 
         return products
+
+    def retrieve(self, request, pk=None):
+        # Handling the retrieval of a single product by its ID
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT product_id, product_name, price, stock, category_name
+                FROM available_products_view
+                WHERE product_id = %s;
+            """, [pk])
+            row = cursor.fetchone()
+
+        if row:
+            product = {
+                "id": row[0],
+                "name": row[1],
+                "price": row[2],
+                "stock": row[3],
+                "category": row[4]
+            }
+            return Response(product)
+        else:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
 
 # User ViewSet
 class UserViewSet(viewsets.ModelViewSet):

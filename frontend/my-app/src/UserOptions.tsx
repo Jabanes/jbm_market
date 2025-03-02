@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Link, useParams } from 'react-router-dom';
 import { Product } from './models/Product';
 import { Category } from './models/Category';
+import Cart from './Cart';
 
 const UserOption: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -10,6 +11,9 @@ const UserOption: React.FC = () => {
   const [first_name, setFirstName] = useState("");
   const [username, setUsername] = useState("");
   const { categoryName } = useParams();  // Capture the category from the URL
+  const [cart, setCart] = useState<{ [key: string]: number }>({});
+
+  
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -39,19 +43,30 @@ const UserOption: React.FC = () => {
     ? products.filter(product => product.category === categoryName)
     : products;
 
+
+  // Handle adding items to the cart
+  const handleAddToCart = (productId: number, quantity: number) => {
+    setCart((prevCart) => {
+      const newCart = { ...prevCart };
+      newCart[productId] = (newCart[productId] || 0) + quantity;
+      return newCart;
+    });
+  };
+
+  const test = () => {
+    console.log(products);
+  };
+
   return (
     <div className="container">
       <h2>Welcome back, {first_name || username}</h2>
-
+      {/* <button onClick={() => test()}>Test</button> */}
+      
       {/* Category Links */}
       <div className="mb-3">
         <Link to="/user-options" className="btn btn-secondary me-2">All</Link>
         {categories.map(cat => (
-          <Link
-            key={cat.id}
-            to={`/category/${cat.name}`}  // Pass category name in the URL path
-            className="btn btn-primary me-2"
-          >
+          <Link key={cat.id} to={`/category/${cat.name}`} className="btn btn-primary me-2">
             {cat.name}
           </Link>
         ))}
@@ -62,7 +77,7 @@ const UserOption: React.FC = () => {
           <p>No products available</p>
         ) : (
           filteredProducts.map(product => (
-            <div key={product.id} className="col-md-4">
+            <div key={product.id} className="col-md-4 mb-4">
               <div className="card" style={{ width: '18rem' }}>
                 <img src={product.image} className="card-img-top" alt={product.name} />
                 <div className="card-body">
@@ -70,12 +85,33 @@ const UserOption: React.FC = () => {
                   <p className="card-text">Category: {product.category}</p>
                   <p className="card-text">Price: ${product.price}</p>
                   <p className="card-text">{parseInt(product.stock.toString(), 10)} Left!</p>
+
+                  {/* Quantity input and Add to Cart button */}
+                  <div className="d-flex align-items-center">
+                    <button
+                      className="btn btn-outline-primary me-2"
+                      onClick={() => handleAddToCart(product.id, 1)}
+                    >
+                      <span>+</span> Add
+                    </button>
+                    <input
+                      type="number"
+                      className="form-control w-25"
+                      min="1"
+                      max={product.stock}
+                      defaultValue={1}
+                      onChange={(e) => handleAddToCart(product.id, parseInt(e.target.value, 10))}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
           ))
         )}
       </div>
+
+      {/* Cart Component */}
+      <Cart cart={cart} setCart={setCart} />
     </div>
   );
 };
